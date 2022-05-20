@@ -4,9 +4,9 @@ then
   git clone https://github.com/Rippo123/andrew-bot/andrew-bot.git /andrew-bot
 else
   echo "Cloning Custom Repo from $UPSTREAM_REPO "
-  git clone $UPSTREAM_REPO /My-Dream
+  git clone $UPSTREAM_REPO /andrew-bot
 fi
-cd /My-Dream
+cd /andrew-bot
 pip3 install -U -r requirements.txt
 echo "Starting Bot...."
 python3 bot.py
