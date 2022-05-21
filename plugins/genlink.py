@@ -40,7 +40,7 @@ async def gen_link_s(bot, message):
 @Client.on_message(filters.command(['batch', 'pbatch']) & filters.create(allowed))
 async def gen_link_batch(bot, message):
     if " " not in message.text:
-        return await message.reply("Use correct format.\nExample <code>/batch https://t.me/TeamEvamaria/10 https://t.me/TeamEvamaria/20</code>.")
+        return await message.reply("𝚄𝚂𝙴 𝙲𝙾𝚁𝚁𝙴𝙲𝚃 𝙵𝙾𝚁𝙼𝙰𝚃.\n𝙴𝚇𝙰𝙼𝙿𝙻𝙴 ›› <code>/batch https://t.me/c/1749754594/332 https://t.me/c/1749754594/336</code>.")
     links = message.text.strip().split(" ")
     if len(links) != 3:
         return await message.reply("Use correct format.\nExample <code>/batch https://t.me/TeamEvamaria/10 https://t.me/TeamEvamaria/20</code>.")
@@ -67,19 +67,19 @@ async def gen_link_batch(bot, message):
     try:
         chat_id = (await bot.get_chat(f_chat_id)).id
     except ChannelInvalid:
-        return await message.reply('This may be a private channel / group. Make me an admin over there to index the files.')
+        return await message.reply('𝚃𝙷𝙸𝚂 𝙼𝙰𝚈 𝙱𝙴 𝙰 𝙿𝚁𝙸𝚅𝙰𝚃𝙴 𝙲𝙷𝙰𝙽𝙽𝙴𝙻 / 𝙶𝚁𝙾𝚄𝙿. 𝙼𝙰𝙺𝙴 𝙼𝙴 𝙰𝙽 𝙰𝙳𝙼𝙸𝙽 𝙾𝚅𝙴𝚁 𝚃𝙷𝙴𝚁𝙴 𝚃𝙾 𝙸𝙽𝙳𝙴𝚇 𝚃𝙷𝙴 𝙵𝙸𝙻𝙴𝚂.')
     except (UsernameInvalid, UsernameNotModified):
         return await message.reply('Invalid Link specified.')
     except Exception as e:
         return await message.reply(f'Errors - {e}')
 
-    sts = await message.reply("Generating link for your message.\nThis may take time depending upon number of messages")
+    sts = await message.reply("𝙶𝚎𝚗𝚎𝚛𝚊𝚝𝚒𝚗𝚐 𝙻𝚒𝚗𝚔 𝙵𝚘𝚛 𝚈𝚘𝚞𝚛 𝙼𝚎𝚜𝚜𝚊𝚐𝚎.\n𝚃𝙷𝙸𝚂 𝙼𝙰𝚈𝙱𝙴 𝚃𝙰𝙺𝙴 𝚃𝙸𝙼𝙴 𝙳𝙴𝙿𝙴𝙽𝙳𝙸𝙽𝙶 𝚄𝙿𝙾𝙽 𝚃𝙷𝙴 𝙽𝚄𝙼𝙱𝙴𝚁 𝙾𝙵 𝙼𝙴𝚂𝚂𝙰𝙶𝙴𝚂")
     if chat_id in FILE_STORE_CHANNEL:
         string = f"{f_msg_id}_{l_msg_id}_{chat_id}_{cmd.lower().strip()}"
         b_64 = base64.urlsafe_b64encode(string.encode("ascii")).decode().strip("=")
-        return await sts.edit(f"Here is your link https://t.me/{temp.U_NAME}?start=DSTORE-{b_64}")
+        return await sts.edit(f"𝙷𝙴𝚁𝙴 𝙸𝚂 𝚈𝙾𝚄𝚁 𝙻𝙸𝙽𝙺 ››  https://t.me/{temp.U_NAME}?start=DSTORE-{b_64}")
 
-    FRMT = "Generating Link...\nTotal Messages: `{total}`\nDone: `{current}`\nRemaining: `{rem}`\nStatus: `{sts}`"
+    FRMT = "<b>╭━━━━━━━━━━━━━━━➣\n┣⪼𝙶𝙴𝙽𝙴𝚁𝙰𝚃𝙸𝙽𝙶 𝙻𝙸𝙽𝙺...\n┣⪼𝚃𝙾𝚃𝙰𝙻 𝙼𝙴𝚂𝚂𝙰𝙶𝙴𝚂: `{total}`\n┣⪼𝙳𝙾𝙽𝙴: `{current}`\n┣⪼𝚁𝙴𝙼𝙰𝙸𝙽𝙸𝙽𝙶: `{rem}`\n𝚂𝚃𝙰𝚃𝚄𝚂: `{sts}`\n╰━━━━━━━━━━━━━━━➣</b>"
 
     outlist = []
 
