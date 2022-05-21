@@ -46,11 +46,13 @@ class script(object):
 🌀𝐁𝐮𝐢𝐥𝐝 s𝐭𝐚𝐭𝐮𝐬 : 𝐕2.1 [𝐁𝐄𝐓𝐀]
 """
     SOURCE_TXT = """<b>NOTE:</b>
-- This is a closed source project.   
+- This is a closed source project
+- If you need the source code you can ask to my owner   
 
 CODES:
 1. Auto Filter
-2. Group Managing  
+2. Group Managing
+3. Filter  
 """
     TTS_TXT = """<b>TEXT TO SPEACH</b>
 Simple Telegram Text-To-Speech Module.
