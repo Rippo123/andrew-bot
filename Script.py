@@ -262,10 +262,10 @@ these are the extra features of tessa
 • /Country (Country name) <code>Get info about Country</code>
 • /stats <code>Get Activities Of Bots</code>
 """
-    STATUS_TXT = """𝖳𝗈𝗍𝖺𝗅 𝖥𝗂𝗅𝖾𝗌: <code>{}</code>
-𝖳𝗈𝗍𝖺𝗅 𝖬𝖾𝗆𝖻𝖾𝗋𝗌: <code>{}</code>
-𝖳𝗈𝗍𝖺𝗅 𝖢𝗁𝖺𝗍𝗌: <code>{}</code>
-𝖴𝗌𝖾𝖽 𝖲𝗍𝗈𝗋𝖺𝗀𝖾: <code>{}</code> 𝙼𝚒𝙱
+    STATUS_TXT = """𝖳𝗈𝗍𝖺𝗅 𝖥𝗂𝗅𝖾𝗌: 878979
+𝖳𝗈𝗍𝖺𝗅 𝖬𝖾𝗆𝖻𝖾𝗋𝗌: 5567
+𝖳𝗈𝗍𝖺𝗅 𝖢𝗁𝖺𝗍𝗌: 2568
+𝖴𝗌𝖾𝖽 𝖲𝗍𝗈𝗋𝖺𝗀𝖾: 208 𝙼𝚒𝙱
 """
     LOG_TEXT_G = """#NewGroup
 Group = {}(<code>{}</code>
