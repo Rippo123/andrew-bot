@@ -14,7 +14,6 @@ from database.connections_mdb import active_connection
 import re
 import json
 import base64
-import pytz
 import datetime
 logger = logging.getLogger(__name__)
 
@@ -44,16 +43,21 @@ async def start(client, message):
         await db.add_user(message.from_user.id, message.from_user.first_name)
         await client.send_message(LOG_CHANNEL, script.LOG_TEXT_P.format(message.from_user.id, message.from_user.mention))
     if len(message.command) != 2:
-        now = datetime.datetime.now()
-        tz = pytz.timezone('asia/kolkata')
-        your_now = now.astimezone(tz)
-        hour = your_now.hour
-        if 0 <= hour <12:
-            get = "Gᴏᴏᴅ ᴍᴏʀɴɪɴɢ"
-        elif 12 <= hour <17:
-            get = 'Gᴏᴏᴅ ᴀꜰᴛᴇʀɴᴏᴏɴ'
-        else:
-            get = 'Gᴏᴏᴅ ᴇᴠᴇɴɪɴɢ'
+        m = datetime.datetime.now()
+
+time = m.hour
+
+if time < 12:
+    get="Good Morning"
+elip time < 15:
+      get="Good Afternoon"
+elip time < 20:
+      get="Good Evening"
+else:
+       get="Good Night"
+
+text = f " " "
+{get} {message.from_user.mention}
         buttons = [[
             InlineKeyboardButton('ᴀᴅᴅ ᴍᴇ ᴛᴏ ʏᴏᴜʀ ᴄʜᴀᴛ', url=f'http://t.me/{temp.U_NAME}?startgroup=true')
             ],[
