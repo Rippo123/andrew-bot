@@ -45,18 +45,18 @@ async def start(client, message):
     if len(message.command) != 2:
         m = datetime.datetime.now()
 
-time = m.hour
+    time = m.hour
 
-if time < 12:
-    get="Good Morning"
-elip time < 15:
-      get="Good Afternoon"
-elip time < 20:
-      get="Good Evening"
-else:
-       get="Good Night"
+    if time < 12:
+        get="Good Morning"
+    elip time < 15:
+        get="Good Afternoon"
+    elip time < 20:
+        get="Good Evening"
+    else:
+        get="Good Night"
 
-text = f " " "
+    text = f " " "
 {get} {message.from_user.mention}
         buttons = [[
             InlineKeyboardButton('ᴀᴅᴅ ᴍᴇ ᴛᴏ ʏᴏᴜʀ ᴄʜᴀᴛ', url=f'http://t.me/{temp.U_NAME}?startgroup=true')
