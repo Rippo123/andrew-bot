@@ -8,7 +8,7 @@ import pyrogram
 from database.connections_mdb import active_connection, all_connections, delete_connection, if_active, make_active, \
     make_inactive
 from info import ADMINS, AUTH_CHANNEL, AUTH_USERS, CUSTOM_FILE_CAPTION, AUTH_GROUPS, P_TTI_SHOW_OFF, IMDB, \
-    SINGLE_BUTTON, SPELL_CHECK_REPLY, IMDB_TEMPLATE
+    SINGLE_BUTTON, SPELL_CHECK_REPLY, IMDB_TEMPLATE, NOPE_TEXT, redirected_env
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 from pyrogram import Client, filters
 from pyrogram.errors import FloodWait, UserIsBlocked, MessageNotModified, PeerIdInvalid
@@ -25,79 +25,62 @@ import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.ERROR)
 
+from image.edit_1 import (  # pylint:disable=import-error
+    bright,
+    mix,
+    black_white,
+    g_blur,
+    normal_blur,
+    box_blur,
+)
+from image.edit_2 import (  # pylint:disable=import-error
+    circle_with_bg,
+    circle_without_bg,
+    sticker,
+    edge_curved,
+    contrast,
+    sepia_mode,
+    pencil,
+    cartoon,
+)
+from image.edit_3 import (  # pylint:disable=import-error
+    green_border,
+    blue_border,
+    black_border,
+    red_border,
+)
+from image.edit_4 import (  # pylint:disable=import-error
+    rotate_90,
+    rotate_180,
+    rotate_270,
+    inverted,
+    round_sticker,
+    removebg_white,
+    removebg_plain,
+    removebg_sticker,
+)
+from image.edit_5 import (  # pylint:disable=import-error
+    normalglitch_1,
+    normalglitch_2,
+    normalglitch_3,
+    normalglitch_4,
+    normalglitch_5,
+    scanlineglitch_1,
+    scanlineglitch_2,
+    scanlineglitch_3,
+    scanlineglitch_4,
+    scanlineglitch_5,
+)
+
 BUTTONS = {}
 SPELL_CHECK = {}
-FILTER_MODE = {}
+GET_FILE_CHANNEL = int(-1001161499656)
 
-@Client.on_message(filters.command('autofilter'))
-async def fil_mod(client, message):
-      mode_on = ["yes", "on", "true"]
-      mode_of = ["no", "off", "false"]
-
-      try:
-         args = message.text.split(None, 1)[1].lower()
-      except:
-         return await message.reply("Command is incomplete.")
-
-      m = await message.reply("Processing...")
-
-      if args in mode_on:
-          FILTER_MODE[str(message.chat.id)] = "True"
-          await m.edit("Auto filter enabled for this chat")
-
-      elif args in mode_of:
-          FILTER_MODE[str(message.chat.id)] = "False"
-          await m.edit("Auto filter disabled for this chat")
-      else:
-          await m.edit("Use: `/autofilter on` or `/autofilter off`")
-
-@Client.on_message(filters.group & filters.text & filters.incoming)
-async def give_filter(client,message):
-    group_id = message.chat.id
-    name = message.text
-
-    keywords = await get_filters(group_id)
-    for keyword in reversed(sorted(keywords, key=len)):
-        pattern = r"( |^|[^\w])" + re.escape(keyword) + r"( |$|[^\w])"
-        if re.search(pattern, name, flags=re.IGNORECASE):
-            reply_text, btn, alert, fileid = await find_filter(group_id, keyword)
-
-            if reply_text:
-                reply_text = reply_text.replace("\\n", "\n").replace("\\t", "\t")
-
-            if btn is not None:
-                try:
-                    if fileid == "None":
-                        if btn == "[]":
-                            await message.reply_text(reply_text, disable_web_page_preview=True)
-                        else:
-                            button = eval(btn)
-                            await message.reply_text(
-                                reply_text,
-                                disable_web_page_preview=True,
-                                reply_markup=InlineKeyboardMarkup(button)
-                            )
-                    elif btn == "[]":
-                        await message.reply_cached_media(
-                            fileid,
-                            caption=reply_text or ""
-                        )
-                    else:
-                        button = eval(btn) 
-                        await message.reply_cached_media(
-                            fileid,
-                            caption=reply_text or "",
-                            reply_markup=InlineKeyboardMarkup(button)
-                        )
-                except Exception as e:
-                    print(e)
-                break 
-   
-    else:
-        if FILTER_MODE.get(str(message.chat.id)) == "False":
-            return
-        else:
-            await auto_filter(client, message)   
+@Client.on_message(filters.group & filters.text & ~filters.edited & filters.incoming)
+async def give_filter(client, message):
+    k = await manual_filters(client, message)
+    if k == False:
+        await auto_filter(client, message)   
 
 @Client.on_callback_query(filters.regex(r"^next"))
 async def next_page(bot, query):
@@ -173,8 +156,8 @@ async def next_page(bot, query):
             )
     btn.insert(0,
             [
-                InlineKeyboardButton("⭕️ ɢʀᴏᴜᴘ ⭕️", url="https://t.me/ML_MOVIE_LOKAM"),
-                InlineKeyboardButton("⭕️ ᴅᴇᴠ ⭕️", url="https://t.me/Bad_Bunny_444")
+                InlineKeyboardButton("⭕️ ɢʀᴏᴜᴘ ⭕️", url="https://t.me/cinemaenglish123"),
+                InlineKeyboardButton("⭕️ ᴅᴇᴠ ⭕️", url="https://t.me/abhisheksvlog")
             ])
 
     btn.insert(0, [
@@ -404,21 +387,27 @@ async def cb_handler(client: Client, query: CallbackQuery):
             alert = alerts[int(i)]
             alert = alert.replace("\\n", "\n").replace("\\t", "\t")
             await query.answer(alert, show_alert=True)
+
     if query.data.startswith("file"):
-        ident, file_id = query.data.split("#")
+        ident, file_id, rid = query.data.split("#")
+
+        if int(rid) not in [query.from_user.id, 0]:
+            return await query.answer(UNAUTHORIZED_CALLBACK_TEXT, show_alert=True)
+
         files_ = await get_file_details(file_id)
         if not files_:
             return await query.answer('No such file exist.')
         files = files_[0]
         title = files.file_name
         size = get_size(files.file_size)
+        mention = query.from_user.mention
         f_caption = files.caption
         settings = await get_settings(query.message.chat.id)
         if CUSTOM_FILE_CAPTION:
             try:
                 f_caption = CUSTOM_FILE_CAPTION.format(file_name='' if title is None else title,
                                                        file_size='' if size is None else size,
-                                                       file_caption='' if f_caption is None else f_caption)
+                                                       file_caption='' if f_caption is None else f_caption)                                                      
             except Exception as e:
                 logger.exception(e)
             f_caption = f_caption
@@ -441,14 +430,78 @@ async def cb_handler(client: Client, query: CallbackQuery):
                 )
                 await query.answer('Check PM, I have sent files in pm', show_alert=True)
         except UserIsBlocked:
-            await query.answer('You Are Blocked to use me', show_alert=True)
+            await query.answer('Unblock the bot mahn !', show_alert=True)
         except PeerIdInvalid:
             await query.answer(url=f"https://t.me/{temp.U_NAME}?start={ident}_{file_id}")
         except Exception as e:
             await query.answer(url=f"https://t.me/{temp.U_NAME}?start={ident}_{file_id}")
+    
+    elif query.data.startswith("Chat"):
+        ident, file_id, rid = query.data.split("#")
+
+        if int(rid) not in [query.from_user.id, 0]:
+            return await query.answer(NOPE_TEXT, show_alert=True)
+
+        files_ = await get_file_details(file_id)
+        if not files_:
+            return await query.answer('No such file exist.')
+        files = files_[0]
+        title = files.file_name
+        size = get_size(files.file_size)
+        mention = query.from_user.mention
+        f_caption = files.caption
+        settings = await get_settings(query.message.chat.id)
+        if CUSTOM_FILE_CAPTION:
+            try:
+                f_caption = CUSTOM_FILE_CAPTION.format(file_name='' if title is None else title,
+                                                       file_size='' if size is None else size,
+                                                       file_caption='' if f_caption is None else f_caption)
+            except Exception as e:
+                logger.exception(e)
+            f_caption = f_caption
+            size = size
+            mention = mention
+        if f_caption is None:
+            f_caption = f"{files.file_name}"
+            size = f"{files.file_size}"
+            mention = f"{query.from_user.mention}"
+
+        try:
+            msg = await client.send_cached_media(
+                chat_id=AUTH_CHANNEL,
+                file_id=file_id,
+                caption=f'<b>Hai 👋 {query.from_user.mention}</b> 😍\n\n<code>{title}</code>\n\n⚠️ This file will be deleted in 5 minute as it has copyright ... !!!\n\nAfter moving from here to saved message or somewhere else, download ... !!!\n\n♻️ 𝗝𝗢𝗜𝗡 : <b>@FilmZoneX</b>\n♻️ 𝗝𝗢𝗜𝗡 : <b>@RequestZoneX</b>',
+                protect_content=True if ident == "filep" else False 
+            )
+            msg1 = await query.message.reply(
+                f'<b> Hai 👋 {query.from_user.mention} </b>😍\n\n<b>📫 Your File is Ready</b>\n\n'           
+                f'<b>📂 Mᴏᴠɪᴇ Nᴀᴍᴇ</b> : <code>{title}</code>\n\n'              
+                f'<b>⚙️ Mᴏᴠɪᴇ Sɪᴢᴇ</b> : <b>{size}</b>',
+                True,
+                'html',
+                reply_markup=InlineKeyboardMarkup(
+                    [
+                        [
+                            InlineKeyboardButton('📥 Download 📥 ', url = msg.link)
+                        ],                       
+                        [
+                            InlineKeyboardButton("⚠️ Can't Access ❓ Click Here ⚠️", url=f'https://t.me/+EXNxTTAhXIkyNTZl')
+                        ]
+                    ]
+                )
+            )
+            await query.answer('Check Out The Chat',)
+            await asyncio.sleep(300)
+            await msg1.delete()
+            await msg.delete()
+            del msg1, msg
+        except Exception as e:
+            logger.exception(e, exc_info=True)
+            await query.answer(f"Encountering Issues", True)
+
     elif query.data.startswith("checksub"):
         if AUTH_CHANNEL and not await is_subscribed(client, query):
-            await query.answer("I Like Your Smartness, But Don't Be Oversmart Okay", show_alert=True)
+            await query.answer("I Like Your Smartness, But Don't Be Oversmart 😒", show_alert=True)
             return
         ident, file_id = query.data.split("#")
         files_ = await get_file_details(file_id)
@@ -457,6 +510,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
         files = files_[0]
         title = files.file_name
         size = get_size(files.file_size)
+        mention = query.from_user.mention
         f_caption = files.caption
         if CUSTOM_FILE_CAPTION:
             try:
@@ -466,8 +520,15 @@ async def cb_handler(client: Client, query: CallbackQuery):
             except Exception as e:
                 logger.exception(e)
                 f_caption = f_caption
+                size = size
+                mention = mention
         if f_caption is None:
             f_caption = f"{title}"
+        if size is None:
+            size = f"{size}"
+        if mention is None:
+            mention = f"{mention}"
+
         await query.answer()
         await client.send_cached_media(
             chat_id=query.from_user.id,
@@ -718,10 +779,10 @@ async def cb_handler(client: Client, query: CallbackQuery):
             ],[
             InlineKeyboardButton('🔍sᴇᴀʀᴄʜ ʜᴇʀᴇ ᴍᴏᴠɪᴇ🔎', switch_inline_query_current_chat='')
             ],[
-            InlineKeyboardButton('ᴅᴇᴠᴇʟᴏᴘᴇʀ', url='https://t.me/Bad_Bunny_444'),
-            InlineKeyboardButton('ɢʀᴏᴜᴘ', url='https://t.me/ML_MOVIE_LOKAM')
+            InlineKeyboardButton('ᴅᴇᴠᴇʟᴏᴘᴇʀ', url='https://t.me/ABHISHEKSVLOG'),
+            InlineKeyboardButton('ɢʀᴏᴜᴘ', url='https://t.me/MovieHubOfficialGroup')
             ],[
-            InlineKeyboardButton('ᴜᴘᴅᴀᴛᴇs ᴄʜᴀɴɴᴇʟ', url='https://t.me/ML_MOVIE_LOKAM'),
+            InlineKeyboardButton('ᴜᴘᴅᴀᴛᴇs ᴄʜᴀɴɴᴇʟ', url='https://t.me/Justaupdatechannel'),
             ],[
             InlineKeyboardButton('✗ ᴄʟᴏsᴇ ᴛʜᴇ ᴍᴇɴᴜ ✗', callback_data='close_data')
         ]]
@@ -2287,12 +2348,13 @@ async def cb_handler(client: Client, query: CallbackQuery):
             await query.message.edit("Your Active Connection Has Been Changed. Go To /settings.")
             return 
 
-        if status == "True":
+        if status == "True" or status == "Chat":
             await save_group_settings(grpid, set_type, False)
         else:
             await save_group_settings(grpid, set_type, True)
 
         settings = await get_settings(grpid)
+
 
         if settings is not None:
             buttons = [
@@ -2303,8 +2365,14 @@ async def cb_handler(client: Client, query: CallbackQuery):
                                          callback_data=f'setgs#button#{settings["button"]}#{str(grp_id)}')
                 ],
                 [
-                    InlineKeyboardButton('𝐁𝐎𝐓 𝐏𝐌', callback_data=f'setgs#botpm#{settings["botpm"]}#{str(grp_id)}'),
-                    InlineKeyboardButton('✅ 𝐘𝐄𝐒' if settings["botpm"] else '🗑️ 𝐍𝐎',
+                    InlineKeyboardButton( 'Redirect To',
+                                         callback_data=f'setgs#redirect_to#{settings["redirect_to"]}#{grp_id}',),
+                    InlineKeyboardButton('👤 PM' if settings["redirect_to"] == "PM" else '📄 Chat',
+                                         callback_data=f'setgs#redirect_to#{settings["redirect_to"]}#{grp_id}',),
+                ],
+                [
+                    InlineKeyboardButton('Bot PM', callback_data=f'setgs#botpm#{settings["botpm"]}#{str(grp_id)}'),
+                    InlineKeyboardButton('✅ Yes' if settings["botpm"] else '❌ No',
                                          callback_data=f'setgs#botpm#{settings["botpm"]}#{str(grp_id)}')
                 ],
                 [
@@ -2355,6 +2423,7 @@ async def auto_filter(client, msg, spoll=False):
         message = msg.message.reply_to_message  # msg will be callback query
         search, files, offset, total_results = spoll
     pre = 'filep' if settings['file_secure'] else 'file'
+    pre = 'Chat' if settings['redirect_to'] == 'Chat' else pre
     if settings["button"]:
         btn = [
             [
