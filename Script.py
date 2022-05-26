@@ -264,7 +264,7 @@ these are the extra features of tessa
 • /Country (Country name) <code>Get info about Country</code>
 • /stats <code>Get Activities Of Bots</code>
 """
-    STATUS_TXT = """𝖳𝗈𝗍𝖺𝗅 𝖥𝗂𝗅𝖾𝗌: 878979
+    STATUS_TXT = """𝖳𝗈𝗍𝖺𝗅 𝖥𝗂𝗅𝖾𝗌: 978979
 𝖳𝗈𝗍𝖺𝗅 𝖬𝖾𝗆𝖻𝖾𝗋𝗌: 5567
 𝖳𝗈𝗍𝖺𝗅 𝖢𝗁𝖺𝗍𝗌: 2568
 𝖴𝗌𝖾𝖽 𝖲𝗍𝗈𝗋𝖺𝗀𝖾: 208 𝙼𝚒𝙱
